@@ -150,10 +150,10 @@ module.exports = {
         proxyRules: proxyServer
       }, resolve)
 
-  open: (browserName, url, options = {}, automation) ->
+  open: (browser, url, options = {}, automation) ->
     { projectRoot, isTextTerminal } = options
 
-    debug("open %o", { browserName, url })
+    debug("open %o", { browser, url })
 
     savedState(projectRoot, isTextTerminal)
     .then (state) ->

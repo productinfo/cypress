@@ -113,11 +113,11 @@ module.exports = {
 
   _removeRootExtension
 
-  _writeExtension: (browserName, isTextTerminal, proxyUrl, socketIoRoute) ->
+  _writeExtension: (browser, isTextTerminal, proxyUrl, socketIoRoute) ->
     ## get the string bytes for the final extension file
     extension.setHostAndPath(proxyUrl, socketIoRoute)
     .then (str) ->
-      extensionDest = utils.getExtensionDir(browserName, isTextTerminal)
+      extensionDest = utils.getExtensionDir(browser, isTextTerminal)
       extensionBg   = path.join(extensionDest, "background.js")
 
       ## copy the extension src to the extension dist
@@ -131,8 +131,6 @@ module.exports = {
     _.defaults(options, {
       browser: {}
     })
-
-    { majorVersion } = options.browser
 
     args = [].concat(defaultArgs)
 
@@ -154,6 +152,7 @@ module.exports = {
     ## https://github.com/cypress-io/cypress/issues/2037
     ## https://github.com/cypress-io/cypress/issues/2215
     ## https://github.com/cypress-io/cypress/issues/2223
+    { majorVersion } = options.browser
     if majorVersion in CHROME_VERSIONS_WITH_BUGGY_ROOT_LAYER_SCROLLING
        args.push("--disable-blink-features=RootLayerScrolling")
 
@@ -169,14 +168,14 @@ module.exports = {
       Promise.all([
         ## ensure that we have a clean cache dir
         ## before launching the browser every time
-        utils.ensureCleanCache(browserName, isTextTerminal),
+        utils.ensureCleanCache(browser, isTextTerminal),
 
         pluginsBeforeBrowserLaunch(options.browser, args)
       ])
     .spread (cacheDir, args) =>
       Promise.all([
         @_writeExtension(
-          browserName,
+          browser,
           isTextTerminal,
           options.proxyUrl,
           options.socketIoRoute
@@ -189,7 +188,7 @@ module.exports = {
         ## massaging what the user passed into our own
         args = _normalizeArgExtensions(extDest, args)
 
-        userDir = utils.getProfileDir(browserName, isTextTerminal)
+        userDir = utils.getProfileDir(browser, isTextTerminal)
 
         ## this overrides any previous user-data-dir args
         ## by being the last one
